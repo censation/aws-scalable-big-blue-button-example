@@ -16,7 +16,7 @@
     "BBBPrivateApplicationSubnets": "10.1.5.0/24,10.1.6.0/24,10.1.7.0/24",
     "BBBPrivateDBSubnets": "10.1.9.0/24,10.1.10.0/24,10.1.11.0/24",
     "BBBPublicApplicationSubnets": "10.1.15.0/24,10.1.16.0/24,10.1.17.0/24",
-    "BBBNumberOfAZs": 3,
+    "BBBNumberOfAZs": 2,
     "BBBECSMaxInstances": 3,
     "BBBECSMinInstances": 1,
     "BBBECSDesiredInstances": 1,

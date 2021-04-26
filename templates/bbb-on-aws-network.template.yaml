@@ -19,7 +19,7 @@ Parameters:
     - 1
     - 2
     - 3
-    Default: 3
+    Default: 2
   BBBPublicApplicationSubnets:
     Description:  Comma separated list of the appserver's subnets
     Type: CommaDelimitedList

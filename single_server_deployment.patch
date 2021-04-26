@@ -1,0 +1,65 @@
+diff --git a/bbb-on-aws-master.template.yaml b/bbb-on-aws-master.template.yaml
+index 31664ca..e2c0740 100644
+--- a/bbb-on-aws-master.template.yaml
++++ b/bbb-on-aws-master.template.yaml
+@@ -20,7 +20,7 @@ Parameters:
+     - 1
+     - 2
+     - 3
+-    Default: 3
++    Default: 2
+   BBBPrivateApplicationSubnets:
+     Description: Comma separated list of the private subnets for instances
+     Type: CommaDelimitedList
+diff --git a/bbb-on-aws-param.json b/bbb-on-aws-param.json
+index 76bf655..8d481bd 100755
+--- a/bbb-on-aws-param.json
++++ b/bbb-on-aws-param.json
+@@ -16,7 +16,7 @@
+     "BBBPrivateApplicationSubnets": "10.1.5.0/24,10.1.6.0/24,10.1.7.0/24",
+     "BBBPrivateDBSubnets": "10.1.9.0/24,10.1.10.0/24,10.1.11.0/24",
+     "BBBPublicApplicationSubnets": "10.1.15.0/24,10.1.16.0/24,10.1.17.0/24",
+-    "BBBNumberOfAZs": 3,
++    "BBBNumberOfAZs": 2,
+     "BBBECSMaxInstances": 3,
+     "BBBECSMinInstances": 1,
+     "BBBECSDesiredInstances": 1,
+diff --git a/templates/bbb-on-aws-network.template.yaml b/templates/bbb-on-aws-network.template.yaml
+index 714ca41..12c0bf5 100644
+--- a/templates/bbb-on-aws-network.template.yaml
++++ b/templates/bbb-on-aws-network.template.yaml
+@@ -19,7 +19,7 @@ Parameters:
+     - 1
+     - 2
+     - 3
+-    Default: 3
++    Default: 2
+   BBBPublicApplicationSubnets:
+     Description:  Comma separated list of the appserver's subnets
+     Type: CommaDelimitedList
+@@ -428,4 +428,4 @@ Outputs:
+   BBBPrivateDBSubnets:
+     Description: A list of the private database subnets
+     Condition: BBBScalableEnvironment
+-    Value: !Join [ ",", [ !Ref BBBPrivateDBSubnet1, !If [ BBBBuild2AZs, !Ref BBBPrivateDBSubnet2,  !Ref "AWS::NoValue"], !If [ BBBBuild3AZs, !Ref BBBPrivateDBSubnet3,  !Ref "AWS::NoValue"]]]
+\ No newline at end of file
++    Value: !Join [ ",", [ !Ref BBBPrivateDBSubnet1, !If [ BBBBuild2AZs, !Ref BBBPrivateDBSubnet2,  !Ref "AWS::NoValue"], !If [ BBBBuild3AZs, !Ref BBBPrivateDBSubnet3,  !Ref "AWS::NoValue"]]]
+diff --git a/templates/bbb-on-aws-securitygroups.template.yaml b/templates/bbb-on-aws-securitygroups.template.yaml
+index 9269117..35c0a2b 100644
+--- a/templates/bbb-on-aws-securitygroups.template.yaml
++++ b/templates/bbb-on-aws-securitygroups.template.yaml
+@@ -88,6 +88,7 @@ Resources:
+ 
+   BBBECSSecurityGroupPublicHTTP:
+     Type: AWS::EC2::SecurityGroupIngress
++    Condition: BBBScalableEnvironment
+     Properties:
+       CidrIp: 0.0.0.0/0
+       IpProtocol: tcp
+@@ -294,4 +295,4 @@ Outputs:
+   BBBSharedStorageSecurityGroup:
+     Condition: BBBScalableEnvironment
+     Description: A reference to the created Security Group for the SharedStorage
+-    Value: !Ref BBBSharedStorageSecurityGroup
+\ No newline at end of file
++    Value: !Ref BBBSharedStorageSecurityGroup
