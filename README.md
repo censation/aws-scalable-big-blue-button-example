@@ -168,7 +168,7 @@ using aws-cli:
 ```
 aws cloudformation deploy --profile=bbb_example --stack-name bbbexample \
     --capabilities CAPABILITY_NAMED_IAM \
-    --parameter-overrides BBBOperatorEMail=johndoe@example.com BBBStackBucketStack=bbbexample-sources BBBDomainName=bbbexample.example.com BBBHostedZone=1XXX02XXXXBMXXXXXZXXXX \
+    --parameter-overrides BBBOperatorEMail=admin@example.com BBBStackBucketStack=bbbexample-sources BBBDomainName=bbbexample.example.com BBBHostedZone=1XXX02XXXXBMXXXXXZXXXX \
     --template ./bbb-on-aws-master.template.yaml
 ```
 

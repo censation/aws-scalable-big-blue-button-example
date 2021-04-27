@@ -4,10 +4,6 @@ Description: >
 
   This Cloudformation Template deploys the Redis Cluster (Amazon ElastiCache) used by the Scalelite load balancer.
 
-  Disclaimer: Not for production use. Demo and testing purposes only.
-
-  Author: David Surey <suredavi@amazon.com>, Bastian Klein <basklein@amazon.com>
-
 Parameters:
   BBBNotificationTopic:
     Description: Topic to be used for alarm notifications

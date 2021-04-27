@@ -4,10 +4,6 @@ Description: >
 
   This Cloudformation Template deploys a Custom Certificate Provider with DNS validation support.
 
-  Disclaimer: Not for production use. Demo and testing purposes only.
-
-  Author: David Surey <suredavi@amazon.com>, Bastian Klein <basklein@amazon.com>
-
 Parameters:
   BBBEnvironmentStage:
     Type: String

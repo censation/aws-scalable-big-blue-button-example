@@ -4,10 +4,6 @@ Description: >
 
   This Cloudformation Template deploys the scalable option of the BigBlueButton application server.
 
-  Disclaimer: Not for production use. Demo and testing purposes only.
-
-  Author: David Surey <suredavi@amazon.com>, Bastian Klein <basklein@amazon.com>
-
 Parameters:
   BBBApplicationVersion:
     Description: Database engine version for Aurora PostgreSQL
@@ -18,7 +14,11 @@ Parameters:
     Type: String
     AllowedPattern: "([a-zA-Z0-9_\\-\\.]+)@((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.)|(([a-zA-Z0-9\\-]+\\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\\]?)"
     ConstraintDescription: Must be a valid email address.
-    Default: johndoe@example.com
+    Default: admin@example.com
+  BBBOperatorPassword:
+    Description: Password for admin to login to Greenlight
+    Type: String
+    Default: "admin123"
   BBBNotificationTopic:
     Description: Topic to be used for alarm notifications
     Type: String
@@ -138,6 +138,9 @@ Parameters:
   BBBDomainName:
     Description: Base domain name used for the instance
     Type: String
+  BBBSubDomainName:
+    Description: Subdomain name for the organisation
+    Type: String
   BBBStackBucketStack:
     Description: S3 Bucket Stack that contains scripts and sources
     Type: String
@@ -250,7 +253,7 @@ Resources:
                 Action:
                   - ssm:GetParameter
                 Resource:
-                  - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/turnhostname"
+                  - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/turnhostname-${BBBSubDomainName}"
               - Effect: Allow
                 Action:
                   - logs:PutLogEvents

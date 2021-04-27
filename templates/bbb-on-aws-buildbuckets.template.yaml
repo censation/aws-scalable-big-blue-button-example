@@ -5,10 +5,6 @@ Description: >
   This Cloudformation Template deploys the prerequisites to handle the BigBlueButton application deployment. The Template deploys an S3 Bucket
   for archive and Application bits.
 
-  Disclaimer: Not for production use. Demo and testing purposes only.
-
-  Author: David Surey <suredavi@amazon.com>, Bastian Klein <basklein@amazon.com>
-
 Resources:
   BBBStackBucket:
     Type: AWS::S3::Bucket

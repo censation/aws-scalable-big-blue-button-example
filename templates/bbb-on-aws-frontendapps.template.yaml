@@ -4,16 +4,15 @@ Description: >
 
   This Cloudformation Template deploys the frontend applications Greenlight and Scalelite to the previously created ECS Cluster.
 
-  Disclaimer: Not for production use. Demo and testing purposes only.
-
-  Author: David Surey <suredavi@amazon.com>, Bastian Klein <basklein@amazon.com>
-
 Parameters:
   BBBHostedZone:
     Description: Hosted zone in which the DNS entries
     Type: String
   BBBDomainName:
     Description: Base domain name
+    Type: String
+  BBBSubDomainName:
+    Description: Subdomain name
     Type: String
   BBBFrontendELBSecurityGroup:
     Description: Security Group that should be assigned for the frontend ELB
@@ -55,7 +54,7 @@ Parameters:
   BBBgreenlightImage:
     Description: Greenlight docker image identifier
     Type: String
-    Default: "bigbluebutton/greenlight:v2"
+    Default: "censation/greenlight-rvce:release-v2"
   BBBScaleliteApiImage:
     Description: Scalelite API docker image identifier
     Type: String
@@ -148,12 +147,19 @@ Parameters:
   BBBSesRegion:
     Description: Region for the SES Domain. If not set, current deployment region will be used
     Type: String
+  BBBOrgName:
+    Description: Organisation name used for the profile
+    Type: String
   BBBOperatorEMail:
     Description: EMail address to notify if there are any operational issues
     Type: String
     AllowedPattern: "([a-zA-Z0-9_\\-\\.]+)@((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.)|(([a-zA-Z0-9\\-]+\\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\\]?)"
     ConstraintDescription: must be a valid email address.
-    Default: johndoe@example.com
+    Default: admin@example.com
+  BBBOperatorPassword:
+    Description: Password for admin to login to Greenlight
+    Type: String
+    Default: "admin123"
   BBBECSInstanceType:
     Description: Set the ECS Instance Type to either EC2 based or Fargate based deployments
     Type: String
@@ -170,94 +176,6 @@ Conditions:
   BBBECSEC2: !Not [ !Equals [ !Ref BBBECSInstanceType, fargate ] ]
 
 Resources:
-  BBBSESDomainIdentity:
-    Type: Custom::DomainIdentity
-    Properties:
-      Domain: !Ref BBBDomainName
-      Region: !If [ BBBSESRegionSet, !Ref BBBSesRegion, !Ref "AWS::Region" ]
-      RecordSetDefaults:
-        TTL: 60
-        Weight: 1
-        SetIdentifier: !If [ BBBSESRegionSet, !Ref BBBSesRegion, !Ref "AWS::Region" ]
-      ServiceToken: !Ref BBBSESProviderArn
-
-  BBBSESVerifiedIdentity:
-    Type: Custom::VerifiedIdentity
-    DependsOn:
-      - BBBSESDkimRecords
-      - BBBSESVerificationRecords
-    Properties:
-      Identity: !GetAtt BBBSESDomainIdentity.Domain
-      Region: !GetAtt BBBSESDomainIdentity.Region
-      Dummy: true
-      ServiceToken: !Ref BBBSESProviderArn
-
-  BBBSESVerificationRecords:
-    Type: AWS::Route53::RecordSetGroup
-    Properties:
-      Comment: !Sub 'SES identity for ${BBBDomainName}'
-      HostedZoneId: !Ref BBBHostedZone
-      RecordSets: !GetAtt 'BBBSESDomainIdentity.RecordSets'
-
-  BBBSESDkimTokens:
-    Type: Custom::DkimTokens
-    Properties:
-      Domain: !GetAtt 'BBBSESDomainIdentity.Domain'
-      Region: !GetAtt 'BBBSESDomainIdentity.Region'
-      ServiceToken: !Ref BBBSESProviderArn
-
-  BBBSESDkimRecords:
-    Type: AWS::Route53::RecordSetGroup
-    Properties:
-      Comment: !Sub 'DKIM records for ${BBBDomainName}'
-      HostedZoneId: !Ref BBBHostedZone
-      RecordSets: !GetAtt 'BBBSESDkimTokens.RecordSets'
-
-  BBBSESIdentityNotifications:
-    Type: Custom::IdentityNotifications
-    Properties:
-      Identity: !GetAtt BBBSESVerifiedIdentity.Identity
-      Region: !GetAtt BBBSESVerifiedIdentity.Region
-      BounceTopic: !Ref BBBNotificationTopic
-      ComplaintTopic: !Ref  BBBNotificationTopic
-      HeadersInBounceNotificationsEnabled: true
-      HeadersInComplaintNotificationsEnabled: true
-      ForwardingEnabled: false
-      ServiceToken: !Ref BBBSESProviderArn
-
-  BBBSMTPUser:
-    Type: AWS::IAM::User
-    Properties:
-      Policies:
-        - PolicyName: BBBSMTPUserPolicy
-          PolicyDocument:
-            Statement:
-              - Effect: Allow
-                Action:
-                  - ses:SendRawEmail
-                Resource: "*"
-
-  BBBUserAccessKey:
-    Type: AWS::IAM::AccessKey
-    Properties:
-      Serial: 8
-      Status: Active
-      UserName: !Ref BBBSMTPUser
-
-  BBBSMTPAccessKey:
-    Type: Custom::SMTPPW
-    Properties:
-      Description: The SMTP User Password for Email Sendout
-      SecretKey: !GetAtt BBBUserAccessKey.SecretAccessKey
-      Region: !If [ BBBSESRegionSet, !Ref BBBSesRegion, !Ref "AWS::Region" ]
-      NoEcho: true
-      ServiceToken: !Ref BBBSMTPSecretProviderArn
-
-  BBBSMTPAccessSecret:
-    Type: AWS::SecretsManager::Secret
-    Properties:
-      Description: 'This is the BBB SMTP Login'
-      SecretString: !Sub "{\"smtpusername\":\"${BBBUserAccessKey}\",\"smtppassword\":\"${BBBSMTPAccessKey}\"}"
 
   BBBApplicationBaseSecret:
     Type: AWS::SecretsManager::Secret
@@ -281,20 +199,11 @@ Resources:
         ExcludePunctuation: true
         ExcludeUppercase: true
 
-  BBBAdministratorlogin:
-    Type: AWS::SecretsManager::Secret
-    Properties:
-      Description: 'This is the BBB base secret'
-      GenerateSecretString:
-        SecretStringTemplate: !Sub "{\"username\":\"${BBBOperatorEMail}\"}"
-        GenerateStringKey: 'password'
-        PasswordLength: 16
-        ExcludePunctuation: true
 
   BBBScaleliteExecutionRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: BBBScaleliteExecutionRole
+      RoleName: !Sub BBBScaleliteExecutionRole-${BBBSubDomainName}
       AssumeRolePolicyDocument:
         Statement:
           - Effect: Allow
@@ -320,7 +229,7 @@ Resources:
   BBBGreenlightTaskExecutionRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: BBBGreenlightExecutionRole
+      RoleName: !Sub BBBGreenlightExecutionRole-${BBBSubDomainName}
       AssumeRolePolicyDocument:
         Statement:
           - Effect: Allow
@@ -341,8 +250,6 @@ Resources:
                   - !Ref BBBRDSDBSecret
                   - !Ref BBBRDSDBConnectionSecret
                   - !Ref BBBApplicationBaseSecret
-                  - !Ref BBBSMTPAccessSecret
-                  - !Ref BBBAdministratorlogin
                   - !Ref BBBLoadbalancerSecret
 
   BBBAutoscalingRole:
@@ -481,7 +388,7 @@ Resources:
       HostedZoneId: !Ref BBBHostedZone
       Comment: ALB for Big Blue Button Frontend
       RecordSets:
-        - Name: !Sub conference.${BBBDomainName}
+        - Name: !Sub ${BBBSubDomainName}.${BBBDomainName}
           Type: CNAME
           TTL: '60'
           ResourceRecords:
@@ -493,7 +400,7 @@ Resources:
       HostedZoneId: !Ref BBBHostedZone
       Comment: ALB for Scalelite
       RecordSets:
-        - Name: !Sub scalelite.${BBBDomainName}
+        - Name: !Sub s-${BBBSubDomainName}.${BBBDomainName}
           Type: CNAME
           TTL: '60'
           ResourceRecords:
@@ -554,8 +461,6 @@ Resources:
 
   BBBgreenlightTaskdefinition:
     Type: AWS::ECS::TaskDefinition
-    DependsOn:
-      - BBBSMTPAccessKey
     Properties:
       Family: !Join [ "", [ !Ref "AWS::StackName", -greenlight ] ]
       ExecutionRoleArn: !Ref BBBGreenlightTaskExecutionRole
@@ -582,35 +487,33 @@ Resources:
           Command:
             - /bin/sh
             - -c
-            - /usr/local/bin/bundle exec rake db:migrate; /usr/local/bin/bundle exec rake user:create["bbbadmin","${ADMIN_LOGIN}","${ADMIN_PASSWORD}","admin"]; bin/start
+            - /usr/local/bin/bundle exec rake db:migrate; /usr/local/bin/bundle exec rake user:create["${ADMIN_NAME}","${ADMIN_LOGIN}","${ADMIN_PASSWORD}","admin"]; bin/start
           Secrets:
-            - Name: ADMIN_PASSWORD
-              ValueFrom: !Sub "${BBBAdministratorlogin}:password::"
             - Name: SECRET_KEY_BASE
               ValueFrom: !Sub "${BBBApplicationBaseSecret}:basekeyvalue::"
             - Name: BIGBLUEBUTTON_SECRET
               ValueFrom: !Sub "${BBBLoadbalancerSecret}:basekeyvalue::"
             - Name: DB_PASSWORD
               ValueFrom: !Sub "${BBBRDSDBSecret}:password::"
-            - Name: SMTP_PASSWORD
-              ValueFrom: !Sub "${BBBSMTPAccessSecret}:smtppassword::"
             - Name: DB_USERNAME
               ValueFrom: !Sub "${BBBRDSDBSecret}:username::"
-            - Name: SMTP_USERNAME
-              ValueFrom: !Sub "${BBBSMTPAccessSecret}:smtpusername::"
             - Name: DB_HOST
               ValueFrom: !Sub "${BBBRDSDBConnectionSecret}:hostname::"
             - Name: DB_PORT
               ValueFrom: !Sub "${BBBRDSDBConnectionSecret}:port::"
           Environment:
+            - Name: ADMIN_NAME
+              Value: !Sub ${BBBOrgName}
             - Name: ADMIN_LOGIN
-              Value: !Join [ '', [ '{{resolve:secretsmanager:', !Ref BBBAdministratorlogin, ':SecretString:username}}' ] ]
+              Value: !Sub ${BBBOperatorEMail}
+            - Name: ADMIN_PASSWORD
+              Value: !Sub ${BBBOperatorPassword}
             - Name: DB_ADAPTER
               Value: postgresql
             - Name: DB_NAME
               Value: !Join [ '_', [ !Ref BBBDBName, !Ref BBBEnvironmentStage ] ]
             - Name: BIGBLUEBUTTON_ENDPOINT
-              Value: !Join [ "", [ "https://", !Sub "scalelite.${BBBDomainName}", "/bigbluebutton/api" ] ]
+              Value: !Join [ "", [ "https://", !Sub "s-${BBBSubDomainName}.${BBBDomainName}", "/bigbluebutton/api" ] ]
             - Name: ALLOW_GREENLIGHT_ACCOUNTS
               Value: "true"
             - Name: RAILS_LOG_TO_STDOUT
@@ -621,18 +524,22 @@ Resources:
               Value: !Sub ${BBBDomainName}
             - Name: GREENLIGHT_USE_WEBHOOKS
               Value: "false"
+            - Name: SMTP_PASSWORD
+              Value: "haymkamrztmcpsgo"
+            - Name: SMTP_USERNAME
+              Value: "rvcemeet@gmail.com"
             - Name: SMTP_SERVER
-              Value: !If [ BBBSESRegionSet, !Sub "email-smtp.${BBBSesRegion}.amazonaws.com" , !Sub "email-smtp.${AWS::Region}.amazonaws.com" ]
+              Value: "smtp.gmail.com"
             - Name: SMTP_PORT
               Value: 587
             - Name: SMTP_DOMAIN
-              Value: !Sub ${BBBDomainName}
+              Value: "gmail.com"
             - Name: SMTP_AUTH
-              Value: LOGIN
+              Value: "plain"
             - Name: SMTP_STARTTLS_AUTO
               Value: "true"
             - Name: SMTP_SENDER
-              Value: !Sub "bigbluebutton@${BBBDomainName}"
+              Value: "rvcemeet@gmail.com"
 
   BBBgreenlightService:
     Type: AWS::ECS::Service
@@ -860,7 +767,7 @@ Resources:
             - Name: NGINX_BEHIND_PROXY
               Value: 'true'
             - Name: URL_HOST
-              Value: !Sub scalelite.${BBBDomainName}
+              Value: !Sub s-${BBBSubDomainName}.${BBBDomainName}
         - Name: scalelite-api
           Essential: true
           Image: !Ref BBBScaleliteApiImage

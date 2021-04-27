@@ -4,10 +4,6 @@ Description: >
 
   This Cloudformation Template deploys the Security Groups used by all stacks.
 
-  Disclaimer: Not for production use. Demo and testing purposes only.
-
-  Author: David Surey <suredavi@amazon.com>, Bastian Klein <basklein@amazon.com>
-
 Parameters:
   BBBVPCs:
     Description: Reference for the VPC

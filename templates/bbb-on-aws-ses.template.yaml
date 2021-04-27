@@ -4,10 +4,6 @@ Description: >
 
   This Cloudformation Template deploys a Custom SES Provider with DNS validation support.
 
-  Disclaimer: Not for production use. Demo and testing purposes only.
-
-  Author: David Surey <suredavi@amazon.com>, Bastian Klein <basklein@amazon.com>
-
 Parameters:
   BBBHostedZone:
     Description: Hosted zone in which the DNS entries for SES should be created

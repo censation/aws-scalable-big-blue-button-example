@@ -4,10 +4,6 @@ Description: >
 
   This Cloudformation Template deploys a Custom AMI Finder.
 
-  Disclaimer: Not for production use. Demo and testing purposes only.
-
-  Author: David Surey <suredavi@amazon.com>, Bastian Klein <basklein@amazon.com>
-
 Parameters:
   BBBTurnInstanceOSVersion: 
     Description: Ubuntu Version to be deployed for Turn Instances 
@@ -111,7 +107,7 @@ Resources:
   BBBTurnAMIParameter:
     Type: AWS::SSM::Parameter
     Properties:
-      Name: turniamgeamiid
+      Name: !Sub turniamgeamiid-${AWS::StackName}
       Type: String
       Value: !Ref BBBTurnAmiID
       Description: SSM Parameter for the variable part of the Turn Ubuntu AMI
@@ -119,7 +115,7 @@ Resources:
   BBBApplicationAMIParameter:
     Type: AWS::SSM::Parameter
     Properties:
-      Name: applicationimageamiid
+      Name: !Sub applicationimageamiid-${AWS::StackName}
       Type: String
       Value: !Ref BBBApplicationAmiID
       Description: SSM Parameter for the variable part of the Application Server Ubuntu AMI
