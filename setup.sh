@@ -104,14 +104,26 @@ PARAMETERS=" BBBOperatorEMail=$OPERATOREMAIL \
              BBBDomainName=$DOMAIN \
              BBBHostedZone=$HOSTEDZONE"
 
+echo "#################PARAMETERS###########################"
+echo $PARAMETERS
+echo "##################################################"
+
 # Deploy the BBB infrastructure. 
 echo "Building the BBB Environment"
-echo "##################################################"
-aws cloudformation deploy --profile=$BBBPROFILE --stack-name $BBBSTACK \
+echo "#############Using Deploy#####################################"
+#aws cloudformation deploy --profile=$BBBPROFILE --stack-name $BBBSTACK \
+#    --capabilities CAPABILITY_NAMED_IAM \
+#    --parameter-overrides $PARAMETERS \
+#    $(jq -r '.Parameters | to_entries | map("\(.key)=\(.value)") | join(" ")' bbb-on-aws-param.json) \
+#    --template ./bbb-on-aws-master.template.yaml
+
+
+echo "#############Using create-stack#####################################"
+aws cloudformation create-stack --profile=$BBBPROFILE --stack-name $BBBSTACK \
     --capabilities CAPABILITY_NAMED_IAM \
-    --parameter-overrides $PARAMETERS \
-    $(jq -r '.Parameters | to_entries | map("\(.key)=\(.value)") | join(" ")' bbb-on-aws-param.json) \
-    --template ./bbb-on-aws-master.template.yaml
+    --disable-rollback \
+    --parameters ParameterKey=BBBOperatorEMail,ParameterValue=manjuraj.v@gmail.com ParameterKey=BBBStackBucketStack,ParameterValue=CENMeetStackSS2-Sources ParameterKey=BBBDomainName,ParameterValue=cenmeet.com ParameterKey=BBBHostedZone,ParameterValue=Z29BU1I287KH4O ParameterKey=BBBApplicationVersion,ParameterValue=xenial-22   ParameterKey=BBBApplicationInstanceOSVersion,ParameterValue=xenial-16.04  ParameterKey=BBBTurnInstanceOSVersion,ParameterValue=focal-20.04 ParameterKey=BBBECSInstanceType,ParameterValue=t3a.medium ParameterKey=BBBApplicationInstanceType,ParameterValue=t3a.medium ParameterKey=BBBApplicationDataVolumeSize,ParameterValue=50 ParameterKey=BBBApplicationRootVolumeSize,ParameterValue=20 ParameterKey=BBBTurnInstanceType,ParameterValue=t3a.micro ParameterKey=BBBDBInstanceType,ParameterValue=db.t3.medium ParameterKey=BBBServerlessAuroraMinCapacity,ParameterValue=2 ParameterKey=BBBServerlessAuroraMaxCapacity,ParameterValue=4 ParameterKey=BBBCACHEDBInstanceType,ParameterValue=cache.t3.micro ParameterKey=BBBVPCs,ParameterValue=10.1.0.0/16 ParameterKey=BBBPrivateApplicationSubnets,ParameterValue=10.1.5.0/24\\,10.1.6.0/24\\,10.1.7.0/24 ParameterKey=BBBPrivateDBSubnets,ParameterValue=10.1.9.0/24\\,10.1.10.0/24\\,10.1.11.0/24 ParameterKey=BBBPublicApplicationSubnets,ParameterValue=10.1.15.0/24\\,10.1.16.0/24\\,10.1.17.0/24 ParameterKey=BBBNumberOfAZs,ParameterValue=3 ParameterKey=BBBECSMaxInstances,ParameterValue=3 ParameterKey=BBBECSMinInstances,ParameterValue=1 ParameterKey=BBBECSDesiredInstances,ParameterValue=1 ParameterKey=BBBApplicationMaxInstances,ParameterValue=1 ParameterKey=BBBApplicationMinInstances,ParameterValue=1 ParameterKey=BBBApplicationDesiredInstances,ParameterValue=1 ParameterKey=BBBTurnMaxInstances,ParameterValue=1 ParameterKey=BBBTurnMinInstances,ParameterValue=1 ParameterKey=BBBTurnDesiredInstances,ParameterValue=1 ParameterKey=BBBDBName,ParameterValue=frontendapp ParameterKey=BBBDBEngineVersion,ParameterValue=12.4 ParameterKey=BBBEnvironmentStage,ParameterValue=dev ParameterKey=BBBEnvironmentName,ParameterValue=bbbonaws ParameterKey=BBBEnvironmentType,ParameterValue=single ParameterKey=BBBgreenlightImage,ParameterValue=bigbluebutton/greenlight:release-2.7.20 ParameterKey=BBBScaleliteApiImage,ParameterValue=blindsidenetwks/scalelite:v1.0.7-api ParameterKey=BBBScaleliteNginxImage,ParameterValue=blindsidenetwks/scalelite:v1.0.7-nginx ParameterKey=BBBScalelitePollerImage,ParameterValue=blindsidenetwks/scalelite:v1.0.7-poller ParameterKey=BBBScaleliteImporterImage,ParameterValue=blindsidenetwks/scalelite:v1.0.7-recording-importer ParameterKey=BBBCacheAZMode,ParameterValue=cross-az ParameterKey=BBBGreenlightMemory,ParameterValue=1024 ParameterKey=BBBGreenlightCPU,ParameterValue=512 ParameterKey=BBBScaleliteMemory,ParameterValue=2048 ParameterKey=BBBScaleliteCPU,ParameterValue=1024 \
+    --template-body file://bbb-on-aws-master.template.yaml
 
 echo "##################################################"
 echo "Deployment finished"

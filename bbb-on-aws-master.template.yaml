@@ -369,7 +369,7 @@ Parameters:
     AllowedValues:
       - scalable 
       - single
-    Default: scalable
+    Default: single
   BBBEnvironmentName:
     Description: An environment name that is prefixed to resource names
     Type: String

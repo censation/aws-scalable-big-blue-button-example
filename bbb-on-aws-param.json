@@ -30,7 +30,7 @@
     "BBBDBEngineVersion": "12.4",
     "BBBEnvironmentStage": "dev",
     "BBBEnvironmentName": "bbbonaws",
-    "BBBEnvironmentType": "scalable",
+    "BBBEnvironmentType": "single",
     "BBBgreenlightImage": "bigbluebutton/greenlight:release-2.7.20",
     "BBBScaleliteApiImage": "blindsidenetwks/scalelite:v1.0.7-api",
     "BBBScaleliteNginxImage": "blindsidenetwks/scalelite:v1.0.7-nginx",
