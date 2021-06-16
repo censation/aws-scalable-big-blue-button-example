@@ -14,11 +14,11 @@ Parameters:
     Type: String
     AllowedPattern: "([a-zA-Z0-9_\\-\\.]+)@((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.)|(([a-zA-Z0-9\\-]+\\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\\]?)"
     ConstraintDescription: Must be a valid email address.
-    Default: admin@example.com
+    Default: contact@cenmeet.com
   BBBOperatorPassword:
     Description: Password for admin to login to Greenlight
     Type: String
-    Default: "admin123"
+    Default: "CENMeet#2021"
   BBBNotificationTopic:
     Description: Topic to be used for alarm notifications
     Type: String
@@ -335,6 +335,9 @@ Resources:
           done
 
           wget -qO- https://ubuntu.bigbluebutton.org/bbb-install.sh | bash -s -- -v ${BBBApplicationVersion} -s $instance_fqdn -e ${BBBOperatorEMail} -c $turn_fqdn:$turnsecret -g
+
+          #TODO: need to take appropriate Greenlight image
+          docker exec greenlight-v2 bundle exec rake user:create["bbbadmin","${BBBOperatorEMail}","${BBBOperatorPassword}","admin"];
 
           # create script for turn-handler
           aws s3 cp s3://${BBBStackBucketStack}/turn-handler.service /etc/systemd/system/turn-handler.service
