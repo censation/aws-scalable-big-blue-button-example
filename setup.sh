@@ -14,33 +14,46 @@ if [[ $# -lt 13 ]] ; then
     exit 1
 fi
 
-while getopts ":p:e:h:s:d:" opt; do
+while getopts ":p:e:h:s:d:o:u:v:a:b:c:n:z:" opt; do
   case $opt in
     p) BBBPROFILE="$OPTARG"
+	echo "p: ${OPTARG}"
     ;;
     e) OPERATOREMAIL="$OPTARG"
+	echo "e: ${OPTARG}"
     ;;
     h) HOSTEDZONE="$OPTARG"
+	echo "h: ${OPTARG}"
     ;;
     s) BBBSTACK="$OPTARG"
+	echo "s: ${OPTARG}"
     ;;
     d) DOMAIN="$OPTARG"
+	echo "d: ${OPTARG}"
     ;;
     o) ORGNAME="$OPTARG"
+	echo "o: ${OPTARG}"
     ;;
-    sd) SUBDOMAIN="$OPTARG"
+    u) SUBDOMAIN="$OPTARG"
+	echo "u: ${OPTARG}"
     ;;
     v) VPC="$OPTARG"
+	echo "v: ${OPTARG}"
     ;;
-    prs) PRIVATEAPPLICATIONSUBNET="$OPTARG"
+    a) PRIVATEAPPLICATIONSUBNET="$OPTARG"
+	echo "a: ${OPTARG}"
     ;;
-    ds) DATABASESUBNET="$OPTARG"
+    b) DATABASESUBNET="$OPTARG"
+	echo "b: ${OPTARG}"
     ;;
-    pus) PUBLICAPPLICATIONSUBNET="$OPTARG"
+    c) PUBLICAPPLICATIONSUBNET="$OPTARG"
+	echo "c: ${OPTARG}"
     ;;
-    db) DATABASEENGINE="$OPTARG"
+    n) DATABASEENGINE="$OPTARG"
+	echo "n: ${OPTARG}"
     ;;
-    g) GREENLIGHTIMAGE="$OPTARG"
+    z) GREENLIGHTIMAGE="$OPTARG"
+	echo "z: ${OPTARG}"
     ;;
     \?) echo "Invalid option -$OPTARG" >&2
     ;;
@@ -120,7 +133,7 @@ PARAMETERS=" BBBOperatorEMail=$OPERATOREMAIL \
              BBBDomainName=$DOMAIN \
              BBBHostedZone=$HOSTEDZONE \
              BBBOrgName=$ORGNAME \
-             BBBSubDomainName=$SUBDOMAINNAME \
+             BBBSubDomainName=$SUBDOMAIN \
              BBBVPCs=$VPC \
              BBBPrivateApplicationSubnets=$PRIVATEAPPLICATIONSUBNET \
              BBBPrivateDBSubnets=$DATABASESUBNET \

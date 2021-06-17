@@ -135,6 +135,27 @@ For the automatic deployment just run the included [setup script](./setup.sh)
 Example: 
 ```
 ./setup.sh -e johndoe@example.com -p bbb_example -h 1XXX02XXXXBMXXXXXZXXXX -s bbbexample -d bbbexample.example.com
+
+
+./setup.sh -zsilver -pdefault -emanjuraj.v@gmail.com -hZ29BU1I287KH4O -sjune17S1M -deventenergies.com -oForB2C -uallinone36 -v"10.1.0.0/16" -a "50.2.25.0/24,50.2.26.0/24" -b "50.2.5.0/24,50.2.6.0/24" -c "50.2.15.0/24,50.2.16.0/24" -n"12.4"
+
+z: silver
+p: default
+e: manjuraj.v@gmail.com
+h: Z29BU1I287KH4O
+s: june17S1D
+d: eventenergies.com
+o: ForB2C
+s: allinone16
+v: 10.1.0.0/16
+a: 50.1.25.0/24,50.1.26.0/24
+b: 50.1.5.0/24,50.1.6.0/24
+c: 50.1.15.0/24,50.1.16.0/24
+n: 12.4
+
+
+./setup.sh -zsilver -pdefault -emanjuraj.v@gmail.com -hZ29BU1I287KH4O -sjune17S1E -deventenergies.com -oForB2C -uallinone21 -v"10.1.0.0/16" -a "50.1.25.0/24,50.1.26.0/24" -b "50.1.5.0/24,50.1.6.0/24" -c "50.1.15.0/24,50.1.16.0/24" -n"12.4"
+
 ```
 
 The automatic deployment works as follows: 

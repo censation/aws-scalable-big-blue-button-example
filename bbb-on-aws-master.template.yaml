@@ -20,7 +20,7 @@ Parameters:
     - 1
     - 2
     - 3
-    Default: 3
+    Default: 2
   BBBPrivateApplicationSubnets:
     Description: Comma separated list of the private subnets for instances
     Type: CommaDelimitedList
