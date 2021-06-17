@@ -333,6 +333,8 @@ Resources:
 
           wget -qO- https://ubuntu.bigbluebutton.org/bbb-install.sh | bash -s -- -v ${BBBApplicationVersion} -s $instance_fqdn -e ${BBBOperatorEMail} -c $turn_fqdn:$turnsecret -g
 
+          docker exec greenlight-v2 bundle exec rake user:create["bbbadmin","${ADMIN_LOGIN}","${ADMIN_PASSWORD}","admin"];
+
           # create script for turn-handler
           aws s3 cp s3://${BBBStackBucketStack}/turn-handler.service /etc/systemd/system/turn-handler.service
           aws s3 cp s3://${BBBStackBucketStack}/turn-handler.timer /etc/systemd/system/turn-handler.timer
